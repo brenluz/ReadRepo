@@ -1,9 +1,11 @@
 from fastapi import Depends, FastAPI
 
 from app.auth import get_current_user, router as auth_router
+from app.repos import router as repos_router
 
 app = FastAPI(title="Repo Q&A Bot")
 app.include_router(auth_router)
+app.include_router(repos_router)
 
 
 @app.get("/")
