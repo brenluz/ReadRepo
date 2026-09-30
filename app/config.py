@@ -18,6 +18,14 @@ class Settings(BaseSettings):
     github_max_archive_bytes: int = 300_000_000
     github_max_file_size_bytes: int = 500_000
 
+    # Chunking. Sizes are in tokens; we don't yet have a real tokenizer
+    # tied to an embedding model, so token counts are estimated from
+    # characters via chunk_chars_per_token (a rough BPE approximation,
+    # ~4 chars/token). Revisit once an embedding model is chosen.
+    chunk_target_tokens: int = 800
+    chunk_overlap_tokens: int = 100
+    chunk_chars_per_token: int = 4
+
     class Config:
         env_file = ".env"
 
