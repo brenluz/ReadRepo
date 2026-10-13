@@ -9,7 +9,11 @@ from app.config import settings
 @lru_cache(maxsize=1)
 def _model() -> SentenceTransformer:
     # Loading the weights is expensive, so do it once and reuse.
-    return SentenceTransformer(settings.embedding_model)
+    model = SentenceTransformer(settings.embedding_model)
+    # Truncate embedding inputs to bound CPU cost; the full chunk text is
+    # still what gets stored and handed to the LLM.
+    model.max_seq_length = settings.embedding_max_seq_tokens
+    return model
 
 
 class CodeEmbeddings(Embeddings):

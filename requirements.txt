@@ -1,0 +1,34 @@
+# ReadRepo dependencies (conda env `readrep`, Python 3.13).
+# Versions pinned to the known-working set - several of these are
+# version-sensitive and caused real conflicts, noted inline.
+
+# --- Web app / auth ---
+fastapi==0.138.0
+uvicorn[standard]==0.52.4
+httpx==0.28.1
+pydantic-settings==2.15.0
+python-multipart==0.0.32
+python-dotenv==1.2.2
+
+# --- RAG pipeline (LangChain + Chroma) ---
+langchain==1.4.3
+langchain-core==1.6.6
+langchain-community==0.4.2        # hosts LanguageParser; prints a sunset warning but works
+langchain-text-splitters==1.1.2
+langchain-chroma==1.1.0
+chromadb==1.5.9
+
+# --- Code-aware chunking (tree-sitter) ---
+tree-sitter==0.26.0
+tree-sitter-language-pack==1.20.0  # the maintained fork; tree_sitter_languages is abandoned & breaks on py3.13
+esprima==4.0.1                     # JavaScript segmenter dependency for LanguageParser
+
+# --- Local embeddings (modernbert-embed-base) ---
+# sentence-transformers is pinned <4 (=>transformers <5): ST 6.x + transformers 5
+# + optimum could not coexist, and modernbert's trust_remote_code path broke on
+# transformers 5. This 3.3.1 / transformers 4.57 set is internally consistent.
+sentence-transformers==3.3.1
+transformers==4.57.6
+torch==2.14.1
+einops==0.8.2
+huggingface-hub==0.36.2

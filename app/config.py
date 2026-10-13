@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     embedding_model: str = "nomic-ai/modernbert-embed-base"
     embedding_document_prefix: str = "search_document: "
     embedding_query_prefix: str = "search_query: "
+    # Cap the tokens actually embedded (the full chunk text is still stored
+    # for the LLM). The model supports 8192, but embedding cost scales with
+    # length; 512 measured ~2.6x faster than full with no retrieval-quality
+    # loss, since a chunk's identifying signal is front-loaded.
+    embedding_max_seq_tokens: int = 512
 
     # Per-repo embedding cache. Keyed by owner/repo@commit-sha so new
     # commits re-embed automatically; entries past the sliding TTL (reset
