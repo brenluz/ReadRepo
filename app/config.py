@@ -12,8 +12,10 @@ class Settings(BaseSettings):
     through the codebase).
     """
 
-    github_client_id: str
-    github_client_secret: str
+    # Optional: only needed for the (dormant) OAuth login flow. Repo
+    # fetching works unauthenticated, so the app runs without these.
+    github_client_id: str | None = None
+    github_client_secret: str | None = None
     oauth_redirect_uri: str = "http://localhost:8000/auth/callback"
     oauth_scope: str = "public_repo"
 

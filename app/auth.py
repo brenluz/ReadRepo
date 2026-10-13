@@ -30,6 +30,13 @@ async def login() -> RedirectResponse:
     tricking a victim's browser into completing an OAuth exchange
     that isn't theirs.
     """
+    if not settings.github_client_id or not settings.github_client_secret:
+        raise HTTPException(
+            status_code=503,
+            detail="GitHub OAuth is not configured (set GITHUB_CLIENT_ID / "
+            "GITHUB_CLIENT_SECRET). Repo features work without it.",
+        )
+
     state = secrets.token_urlsafe(16)
 
     params = {
