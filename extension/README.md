@@ -13,13 +13,26 @@ uvicorn app.main:app --reload
 
 (and Ollama running with the configured model pulled — see the project README).
 
-## Load it in Chrome
+## Load it in Zen / Firefox
+
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on…**.
+3. Select this folder's `manifest.json`.
+4. Open any public GitHub repository page — e.g. `https://github.com/psf/requests`.
+5. Click the **Ask ReadRepo** button (bottom-right) and ask a question.
+
+Temporary add-ons are removed when the browser restarts, so re-load it per
+session during development.
+
+## Load it in Chrome / Edge
 
 1. Go to `chrome://extensions`.
 2. Enable **Developer mode** (top-right).
 3. Click **Load unpacked** and select this `extension/` folder.
-4. Open any public GitHub repository page — e.g. `https://github.com/psf/requests`.
-5. Click the **Ask ReadRepo** button (bottom-right) and ask a question.
+4. Open a repository page and use the **Ask ReadRepo** button.
+
+The manifest declares both a Firefox background script and a Chrome service
+worker, so the same folder loads in either browser.
 
 The first question about a repository triggers a one-time indexing step and
 can take a few minutes; later questions about the same repo are faster
