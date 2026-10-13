@@ -1,0 +1,124 @@
+.rr-launcher {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2147483000;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 20px;
+  background: #2da44e;
+  color: #fff;
+  font: 600 13px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.rr-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 72px;
+  z-index: 2147483000;
+  display: flex;
+  flex-direction: column;
+  width: 380px;
+  max-width: calc(100vw - 40px);
+  height: 520px;
+  max-height: calc(100vh - 120px);
+  background: #fff;
+  color: #1f2328;
+  border: 1px solid #d0d7de;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.rr-hidden { display: none; }
+
+.rr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #d0d7de;
+  background: #f6f8fa;
+}
+
+.rr-title { font-weight: 600; }
+
+.rr-close {
+  border: none;
+  background: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: #656d76;
+}
+
+.rr-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rr-msg {
+  padding: 8px 10px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.rr-user { align-self: flex-end; background: #ddf4ff; max-width: 85%; }
+.rr-assistant { align-self: flex-start; background: #f6f8fa; max-width: 95%; }
+.rr-error { background: #ffebe9; color: #cf222e; }
+
+.rr-status { align-self: flex-start; color: #656d76; font-style: italic; }
+
+.rr-sources {
+  align-self: flex-start;
+  max-width: 95%;
+  font-size: 12px;
+  color: #656d76;
+}
+.rr-sources-label { font-weight: 600; margin-bottom: 2px; }
+.rr-source { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+.rr-form {
+  display: flex;
+  gap: 6px;
+  padding: 10px;
+  border-top: 1px solid #d0d7de;
+}
+
+.rr-input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.rr-send {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #2da44e;
+  color: #fff;
+  font: 600 13px/1.2 inherit;
+  cursor: pointer;
+}
+.rr-send:disabled { opacity: 0.6; cursor: default; }
+
+@media (prefers-color-scheme: dark) {
+  .rr-panel { background: #0d1117; color: #e6edf3; border-color: #30363d; }
+  .rr-header { background: #161b22; border-color: #30363d; }
+  .rr-close { color: #8b949e; }
+  .rr-user { background: #1f3b5c; }
+  .rr-assistant { background: #161b22; }
+  .rr-error { background: #3c1618; color: #ff7b72; }
+  .rr-input { background: #0d1117; color: #e6edf3; border-color: #30363d; }
+  .rr-form, .rr-messages { border-color: #30363d; }
+}

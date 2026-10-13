@@ -10,7 +10,9 @@ ReadRepo is a retrieval-augmented generation (RAG) pipeline over a repository's 
 2. **Chunk** — splits files with tiered, code-aware chunking: AST-based splitting (via tree-sitter) for ~18 languages so functions and classes stay whole, language-aware heuristics for other languages, and a plain character fallback for everything else. Each chunk is tagged by category (code / docs / config / infra).
 3. **Embed** — generates embeddings locally with `modernbert-embed-base` — long-context, CPU-friendly, no API.
 4. **Store & cache** — persists vectors in a Chroma store. Embeddings are cached per repository and keyed by commit SHA, so a repo is only re-embedded when it actually changes; cache entries expire on a sliding 24-hour TTL.
-5. **Retrieve & answer** — retrieves the most relevant chunks for a question and has a local LLM (served by Ollama) answer strictly from them, citing the source file(s). Citations are derived from the retrieved chunks themselves, not inferred from the model's text.
+5. **Retrieve & answer** — retrieves the most relevant chunks for a question and has a local LLM (served by Ollama) answer strictly from them, citing the source file(s). Citations are derived from the retrieved chunks themselves, not inferred from the model's text. Answers stream token by token, and conversation history is kept so follow-up questions retain context.
+
+A browser extension (`extension/`) surfaces this as a chat panel directly on GitHub repository pages — see `extension/README.md` to load it.
 
 ## Tech stack
 
@@ -48,4 +50,4 @@ Settings are read from environment variables / a `.env` file and validated at st
 
 ## Status
 
-The core pipeline — fetch → chunk → embed → store/cache → retrieve → generate with citations — is implemented. A browser-extension front-end that surfaces the chat directly on GitHub repository pages is planned.
+The full flow is implemented end to end: fetch → chunk → embed → store/cache → retrieve → streamed, grounded generation with citations and conversation memory, plus a browser-extension front-end (`extension/`). A possible enhancement is history-aware query rewriting for referential follow-ups.

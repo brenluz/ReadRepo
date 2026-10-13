@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "ReadRepo",
+  "version": "0.1.0",
+  "description": "Ask questions about the GitHub repository you're viewing, answered from its source with citations.",
+  "permissions": ["storage"],
+  "host_permissions": ["http://localhost:8000/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*"],
+      "js": ["content.js"],
+      "css": ["panel.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

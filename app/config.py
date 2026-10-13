@@ -64,6 +64,14 @@ class Settings(BaseSettings):
     # explicitly to comfortably fit k chunks of context.
     llm_num_ctx: int = 8192
 
+    # Conversation memory: how many recent messages (user+assistant) to
+    # replay into the prompt so follow-up questions keep context.
+    conversation_max_messages: int = 10
+
+    # CORS origins allowed to call the API (the browser extension). "*" is
+    # fine for a local tool that uses no cookies/credentials.
+    cors_allow_origins: list[str] = ["*"]
+
     class Config:
         env_file = ".env"
 

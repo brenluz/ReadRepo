@@ -1,16 +1,27 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from app.auth import get_current_user, router as auth_router
+from app.auth import router as auth_router
+from app.chat import router as chat_router
+from app.config import settings
 from app.repos import router as repos_router
 
-app = FastAPI(title="Repo Q&A Bot")
+app = FastAPI(title="ReadRepo")
+
+# Allow the browser extension (and local dev clients) to call the API.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_allow_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(auth_router)
 app.include_router(repos_router)
+app.include_router(chat_router)
 
 
 @app.get("/")
-async def root(user: dict = Depends(get_current_user)):
-    # Placeholder landing route so we can confirm the whole login ->
-    # callback -> session flow works end to end. This is where the
-    # chat UI will eventually live.
-    return {"message": f"Logged in as {user['github_login']}"}
+async def root() -> dict:
+    # Public health/info route (no auth: repo features run unauthenticated).
+    return {"name": "ReadRepo", "status": "ok"}
