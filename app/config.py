@@ -50,6 +50,18 @@ class Settings(BaseSettings):
     )
     embedding_cache_ttl_hours: float = 24.0
 
+    # Generation. Local LLM via Ollama, kept behind a swappable LangChain
+    # chat interface. Low temperature for factual, grounded answers. k is
+    # how many retrieved chunks are fed to the model as context.
+    llm_model: str = "qwen2.5:3b"
+    llm_temperature: float = 0.1
+    ollama_base_url: str = "http://localhost:11434"
+    retrieval_k: int = 5
+    # Ollama defaults to a 2048-token context window; our retrieved chunks
+    # plus the prompt can exceed that and be silently truncated, so set it
+    # explicitly to comfortably fit k chunks of context.
+    llm_num_ctx: int = 8192
+
     class Config:
         env_file = ".env"
 

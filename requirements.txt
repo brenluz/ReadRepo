@@ -16,6 +16,7 @@ langchain-core==1.6.6
 langchain-community==0.4.2        # hosts LanguageParser; prints a sunset warning but works
 langchain-text-splitters==1.1.2
 langchain-chroma==1.1.0
+langchain-ollama==1.1.0            # thin client to a local Ollama server for generation
 chromadb==1.5.9
 
 # --- Code-aware chunking (tree-sitter) ---
