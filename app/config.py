@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
 
 
@@ -25,6 +28,22 @@ class Settings(BaseSettings):
     chunk_target_tokens: int = 800
     chunk_overlap_tokens: int = 100
     chunk_chars_per_token: int = 4
+
+    # Embeddings. modernbert-embed-base: local (sentence-transformers),
+    # 8192-token context (fits our ~800-token chunks whole), 768-dim.
+    # Requires the search_document:/search_query: task prefixes.
+    embedding_model: str = "nomic-ai/modernbert-embed-base"
+    embedding_document_prefix: str = "search_document: "
+    embedding_query_prefix: str = "search_query: "
+
+    # Per-repo embedding cache. Keyed by owner/repo@commit-sha so new
+    # commits re-embed automatically; entries past the sliding TTL (reset
+    # on each access) are swept opportunistically. Default location is a
+    # disposable per-user cache dir, not the project tree.
+    embedding_cache_dir: str = str(
+        Path(os.environ.get("LOCALAPPDATA", Path.home())) / "ReadRepo" / "cache"
+    )
+    embedding_cache_ttl_hours: float = 24.0
 
     class Config:
         env_file = ".env"

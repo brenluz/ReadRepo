@@ -100,3 +100,42 @@ async def fetch_repo_archive(
                 chunks.append(chunk)
 
     return b"".join(chunks)
+
+
+async def fetch_commit_sha(
+    owner: str,
+    repo: str,
+    access_token: str | None = None,
+    ref: str | None = None,
+) -> str:
+    """
+    Resolves a ref (default branch when omitted) to its current commit SHA
+    in one lightweight request. The vnd.github.sha media type makes GitHub
+    return just the 40-char SHA as plain text instead of the full commit
+    payload - cheap enough to run before deciding whether to download the
+    archive at all (cache lookup).
+    """
+    ref = ref or "HEAD"
+    url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/commits/{ref}"
+    headers = {
+        "Accept": "application/vnd.github.sha",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
+    async with httpx.AsyncClient(
+        follow_redirects=True,
+        timeout=settings.github_http_timeout_seconds,
+    ) as client:
+        response = await client.get(url, headers=headers)
+
+    if response.status_code == 404:
+        raise RepoNotFoundError(f"{owner}/{repo}@{ref} not found or inaccessible")
+    if _is_rate_limited(response):
+        raise RateLimitedError(retry_after=_rate_limit_retry_after(response))
+    if response.status_code != 200:
+        raise GithubApiError(
+            f"Unexpected status {response.status_code} resolving {owner}/{repo}@{ref}"
+        )
+    return response.text.strip()
