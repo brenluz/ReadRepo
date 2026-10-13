@@ -14,6 +14,7 @@ from app.github_client import (
     RateLimitedError,
     RepoNotFoundError,
 )
+from app.repo_index import RepoTooLargeError
 
 router = APIRouter(prefix="/chat")
 
@@ -35,6 +36,12 @@ def _resolve_conversation(conversation_id: str | None) -> tuple[str, list[BaseMe
 
 
 def _http_error(exc: Exception) -> HTTPException:
+    if isinstance(exc, RepoTooLargeError):
+        return HTTPException(
+            413,
+            f"This repository is too large to index locally ({exc.chunk_count} "
+            f"chunks, limit {exc.limit}). Try a smaller repository.",
+        )
     if isinstance(exc, RepoNotFoundError):
         return HTTPException(404, "Repository not found, inaccessible, or empty")
     if isinstance(exc, RateLimitedError):
@@ -54,9 +61,7 @@ async def chat(req: ChatRequest) -> dict:
         result = await answer_question(
             req.owner, req.repo, req.question, history=history, ref=req.ref
         )
-    except GithubApiError as exc:
-        raise _http_error(exc)
-    except httpx.TimeoutException as exc:
+    except (RepoTooLargeError, GithubApiError, httpx.TimeoutException) as exc:
         raise _http_error(exc)
 
     conversation_store.append(
@@ -83,7 +88,7 @@ async def chat_stream(req: ChatRequest) -> StreamingResponse:
                 if event["type"] == "token":
                     answer_parts.append(event["text"])
                 yield json.dumps(event) + "\n"
-        except (GithubApiError, httpx.TimeoutException) as exc:
+        except (RepoTooLargeError, GithubApiError, httpx.TimeoutException) as exc:
             detail = _http_error(exc).detail
             yield json.dumps({"type": "error", "detail": detail}) + "\n"
             return

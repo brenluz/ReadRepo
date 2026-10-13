@@ -15,6 +15,15 @@ from app.vector_store import build_vector_store
 _COLLECTION_NAME = "repo"
 
 
+class RepoTooLargeError(Exception):
+    """Repo would produce more chunks than we're willing to embed on CPU."""
+
+    def __init__(self, chunk_count: int, limit: int) -> None:
+        self.chunk_count = chunk_count
+        self.limit = limit
+        super().__init__(f"{chunk_count} chunks exceeds the local limit of {limit}")
+
+
 def _cache_root() -> Path:
     root = Path(settings.embedding_cache_dir)
     root.mkdir(parents=True, exist_ok=True)
@@ -69,6 +78,10 @@ async def get_repo_store(
                 embedding_function=embeddings,
                 collection_name=_COLLECTION_NAME,
             )
+            if store._collection.count() == 0:
+                # An interrupted build leaves an empty collection behind;
+                # treat it as a miss rather than serving zero results.
+                raise RuntimeError("empty cache entry")
             _touch(entry)
             return store
         except Exception:
@@ -77,7 +90,9 @@ async def get_repo_store(
             shutil.rmtree(entry, ignore_errors=True)
 
     files = await fetch_repo_files(owner, repo, access_token, ref)
-    chunks = chunk_repo_files(files)
+    chunks = list(chunk_repo_files(files))
+    if len(chunks) > settings.max_repo_chunks:
+        raise RepoTooLargeError(len(chunks), settings.max_repo_chunks)
     store = build_vector_store(
         chunks,
         persist_directory=str(entry),

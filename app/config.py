@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     chunk_target_tokens: int = 800
     chunk_overlap_tokens: int = 100
     chunk_chars_per_token: int = 4
+    # Guardrail: reject repos that would take too long to embed on CPU
+    # rather than silently grinding. At ~0.5s/chunk, 3000 chunks is already
+    # ~25 min to first-index; raise it only if you're willing to wait.
+    max_repo_chunks: int = 3000
 
     # Embeddings. modernbert-embed-base: local (sentence-transformers),
     # 8192-token context (fits our ~800-token chunks whole), 768-dim.
