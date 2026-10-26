@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import AsyncIterator
 
 from langchain_core.documents import Document
@@ -126,8 +127,27 @@ async def stream_answer(
     """
     history = history or []
     yield {"type": "status", "text": "Preparing repository index..."}
-    docs = await _retrieve(owner, repo, question, history, ref, access_token)
 
+    # Retrieval may trigger a slow one-time embed. Run it as a task and emit
+    # heartbeats while it works, so the stream stays alive (keeping the
+    # extension's background worker awake) and the user sees progress.
+    retrieve_task = asyncio.create_task(
+        _retrieve(owner, repo, question, history, ref, access_token)
+    )
+    waited = 0.0
+    while not retrieve_task.done():
+        done, _ = await asyncio.wait(
+            {retrieve_task}, timeout=settings.stream_heartbeat_seconds
+        )
+        if not done:
+            waited += settings.stream_heartbeat_seconds
+            yield {
+                "type": "status",
+                "text": f"Indexing repository… one-time, still working ({int(waited)}s)",
+            }
+    docs = retrieve_task.result()
+
+    yield {"type": "status", "text": "Generating answer…"}
     chain = _PROMPT | build_llm()
     async for chunk in chain.astream(_invoke_payload(question, docs, history)):
         if chunk.content:

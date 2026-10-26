@@ -76,6 +76,11 @@ class Settings(BaseSettings):
     # fine for a local tool that uses no cookies/credentials.
     cors_allow_origins: list[str] = ["*"]
 
+    # How often the stream emits a heartbeat/status while a slow first-time
+    # index runs. Keeps the stream alive (so the extension's background
+    # worker isn't suspended) and shows the user it's still working.
+    stream_heartbeat_seconds: float = 8.0
+
     class Config:
         env_file = ".env"
 

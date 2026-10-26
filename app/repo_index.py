@@ -1,3 +1,4 @@
+import asyncio
 import os
 import shutil
 import time
@@ -93,7 +94,10 @@ async def get_repo_store(
     chunks = list(chunk_repo_files(files))
     if len(chunks) > settings.max_repo_chunks:
         raise RepoTooLargeError(len(chunks), settings.max_repo_chunks)
-    store = build_vector_store(
+    # Embedding is CPU-bound and synchronous; run it off the event loop so
+    # the server (and streaming heartbeats) stay responsive during indexing.
+    store = await asyncio.to_thread(
+        build_vector_store,
         chunks,
         persist_directory=str(entry),
         collection_name=_COLLECTION_NAME,
